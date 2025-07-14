@@ -9,8 +9,6 @@ if (!isset($_GET['id_objet']) || !is_numeric($_GET['id_objet'])) {
 }
 
 $id_objet = (int)$_GET['id_objet'];
-
-// Fetch object details
 $sql = "SELECT o.id_objet, o.nom_objet, c.nom_categorie, m.id_membre, m.nom AS proprietaire, i.nom_image
         FROM final_project_objet o
         JOIN final_project_categorie_objet c ON o.id_categorie = c.id_categorie
@@ -29,7 +27,6 @@ if (!$object) {
     exit;
 }
 
-// Fetch additional images
 $sql_images = "SELECT id_image, nom_image FROM final_project_images_objet WHERE id_objet = ?";
 $stmt_images = mysqli_prepare($conn, $sql_images);
 mysqli_stmt_bind_param($stmt_images, 'i', $id_objet);
@@ -41,7 +38,6 @@ while ($row = mysqli_fetch_assoc($result_images)) {
 }
 mysqli_stmt_close($stmt_images);
 
-// Fetch loan history
 $sql_history = "SELECT e.id_emprunt, e.date_emprunt, e.date_retour, m.id_membre, m.nom AS emprunteur
                 FROM final_project_emprunt e
                 JOIN final_project_membre m ON e.id_membre = m.id_membre
@@ -57,7 +53,6 @@ while ($row = mysqli_fetch_assoc($result_history)) {
 }
 mysqli_stmt_close($stmt_history);
 
-// Check if logged-in user is the owner
 $is_owner = false;
 if (isset($_SESSION['email'])) {
     $sql_user = "SELECT id_membre FROM final_project_membre WHERE email = ?";

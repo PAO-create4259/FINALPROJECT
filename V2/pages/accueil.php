@@ -170,7 +170,7 @@ $objects = object_list($search_name, $available_only, $categorie_filter);
                             <a class="nav-link" href="login.php">Se déconnecter</a>
                         </li>
                     <?php endif; ?>
-                </ul>
+                </ запас>
             </div>
         </div>
     </nav>
@@ -183,26 +183,26 @@ $objects = object_list($search_name, $available_only, $categorie_filter);
             </div>
         <?php endif; ?>
         <form method="GET" action="../traitement/traitement_filtrer.php" class="mb-5">
-        <div class="row g-3 align-items-center justify-content-center">
-            <div class="col-auto">
-                <label for="categorie" class="form-label fw-bold">Filtrer par catégorie</label>
+            <div class="row g-3 align-items-center justify-content-center">
+                <div class="col-auto">
+                    <label for="categorie" class="form-label fw-bold">Filtrer par catégorie</label>
+                </div>
+                <div class="col-auto">
+                    <select id="categorie" name="categorie" class="form-select" aria-label="Catégorie">
+                        <option value="">Toutes</option>
+                        <?php foreach ($categories as $cat): ?>
+                            <option value="<?php echo htmlspecialchars($cat['nom_categorie']); ?>" 
+                                    <?php echo $categorie_filter == $cat['nom_categorie'] ? 'selected' : ''; ?>>
+                                <?php echo htmlspecialchars($cat['nom_categorie']); ?>
+                            </option>
+                        <?php endforeach; ?>
+                    </select>
+                </div>
+                <div class="col-auto">
+                    <button type="submit" class="btn btn-primary">Filtrer</button>
+                </div>
             </div>
-            <div class="col-auto">
-                <select id="categorie" name="categorie" class="form-select" aria-label="Catégorie">
-                    <option value="">Toutes</option>
-                    <?php foreach ($categories as $cat): ?>
-                        <option value="<?php echo htmlspecialchars($cat['nom_categorie']); ?>" 
-                                <?php echo $categorie_filter == $cat['nom_categorie'] ? 'selected' : ''; ?>>
-                            <?php echo htmlspecialchars($cat['nom_categorie']); ?>
-                        </option>
-                    <?php endforeach; ?>
-                </select>
-            </div>
-            <div class="col-auto">
-                <button type="submit" class="btn btn-primary">Filtrer</button>
-            </div>
-        </div>
-    </form>
+        </form>
         <form method="GET" action="accueil.php" class="mb-5">
             <div class="row g-3 align-items-center justify-content-center">
                 <div class="col-auto">
@@ -241,6 +241,8 @@ $objects = object_list($search_name, $available_only, $categorie_filter);
                         <th>Catégorie</th>
                         <th>Propriétaire</th>
                         <th>Statut</th>
+                        <th>Emprunt</th>
+                        
                     </tr>
                 </thead>
                 <tbody>
@@ -250,18 +252,19 @@ $objects = object_list($search_name, $available_only, $categorie_filter);
                         <?php foreach ($objects as $obj): ?>
                             <tr>
                                 <td>
-                                    <?php if ($obj['nom_image']): ?>
-                                        <img src="Uploads/<?php echo htmlspecialchars($obj['nom_image']); ?>" alt="<?php echo htmlspecialchars($obj['nom_objet']); ?>">
+                                    <?php if (!empty($obj['nom_image'])): ?>
+                                        <img src="../Uploads/<?php echo htmlspecialchars($obj['nom_image']); ?>" alt="<?php echo htmlspecialchars($obj['nom_objet']); ?>">
                                     <?php else: ?>
-                                        <img src="images-projetfinal/vernis1.jpg" alt="Image par défaut" class="no-image">
+                                        <span class="no-image">Aucune image</span>
                                     <?php endif; ?>
                                 </td>
                                 <td><a href="objet_details.php?id_objet=<?php echo $obj['id_objet']; ?>" class="object-link"><?php echo htmlspecialchars($obj['nom_objet']); ?></a></td>
                                 <td><?php echo htmlspecialchars($obj['nom_categorie']); ?></td>
-                                <td><?php echo htmlspecialchars($obj['proprietaire']); ?></a></td>
+                                <td><?php echo htmlspecialchars($obj['proprietaire']); ?></td>
                                 <td class="<?php echo $obj['date_retour'] === null && $obj['id_objet'] ? 'status-en-cours' : 'status-disponible'; ?>">
                                     <?php echo $obj['date_retour'] ? htmlspecialchars($obj['date_retour']) : ($obj['date_retour'] === null && $obj['id_objet'] ? 'En cours' : 'Disponible'); ?>
                                 </td>
+                                 <td><?php echo htmlspecialchars($obj['proprietaire']); ?></td>
                             </tr>
                         <?php endforeach; ?>
                     <?php endif; ?>
