@@ -32,11 +32,15 @@
      {ok}-tableau utiliser le tableau final_project_objet
     {ok}-filtre par categorie un bouton filtrer et une liste deroulante avec les categories
      final_project_images_objet
-     -4221 traitement_filtrer.php:
+     {ok}-4221 traitement_filtrer.php:
      -le bouton filtrer(liste deroulante) redirige vers ve traitement et se redirige ensuite vers filtre.php et la liste se regenere
-     -4221 filtre.php: 
-        Comme un accueil.php mais liste les objects par categorie
+    {ok} -4221 filtre.php: 
+     {ok}-4259fonction.php
+        -object_list() pour avoir la liste des objets et 
+        -option_categorie() pour la liste deroulante des categories
+        {ok}Comme un accueil.php mais liste les objects par categorie
         
+(4259)-Boostrap 
 
 -DEPLOIEMENT
 -chnger l adresse de la connexion.php mysqli.connecter
