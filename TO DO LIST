@@ -26,7 +26,7 @@
     {ok}-fonction verify_inscription pour pouvoir s incrire en completant les champs ci dessus 
     {ok}-fonction verify_password si un autre utilisateur a deja le meme mot de passe
     {ok}-fonction add_new_member pour ajouter le nouveau membre dans la database
-    -[4259-4221]accueil.php
+    -[4259-4221] [ok]-accueil.php
     
  {ok}-liste de tous les objets par defaut  avec date de retour et emprunt en cours
      {ok}-tableau utiliser le tableau final_project_objet
@@ -40,11 +40,48 @@
         -option_categorie() pour la liste deroulante des categories
         {ok}Comme un accueil.php mais liste les objects par categorie
         
-(4259)-Boostrap 
+[ok](4259)-Boostrap 
+-[ok]DEPLOIEMENT
 
--DEPLOIEMENT
--chnger l adresse de la connexion.php mysqli.connecter
--deployer avec fillezilla
+-VERSION 2:
+    -[ok](4221)Amelioration au max du design du projet
+
+    -(4221)Ajout d’un nouvel objet (avec upload d’image) par un membre:
+     Dans accueil.php: 
+        -Ajouter un bouton "Ajouter un objet", ca redirige vers une page Ajout.php.
+
+    -(4221)Ajout.php:
+            -get id de la personne connectee
+            -formulaire du nouveau objet avec un bouton pour uploader les images redirigeant vers traitement_upload.php, pour pouvoir ajouter des images.
+        -Creer un view "image_objet" manambatran'ny final_project_objet sy final_project_images_objet.
+
+
+    -(4221-4259)traitement_upload.php: en cours
+        pour pouvoir multiplier les images
+        on peut avoir plusieurs images, mais la 1ère image sera l’image principale à afficher sur la liste des objets
+
+    -(4221)objet_details.php:
+        Lorsqu'on clique sur un objet dans la liste, afficher une page objet_details.php avec l'image principale, les autres images, et l'historique des emprunts.
+    
+    -(4221)membre.php: en cours 
+        Pour afficher les informations du membre et ses objets, regroupés par catégorie
+
+    -(4259)traitement_delete_image.php:encours
+        Assure que seul le propriétaire peut supprimer une image.
+        Suppression : Supprime l'entrée de final_project_images_objet et les fichiers dans Uploads/ et images/.
+        Redirection : Retourne à objet_details.php pour l'objet concerné.
+
+       (4259) s’il n’y a pas d’images, mettre une image par défaut
+        -Creation du fichier Uploads pour mettre les images uploader
+        -on revient dans acueil.php 
+
+    mettre les critères de recherche suivant sur la liste des objets
+    catégorie (zone de liste)
+    nom de l’objet 
+    case à cocher disponible
+    dans la fiche membre, mettre les infos du membre, ainsi que les objets du membre regroupés par catégorie
+
+
 
 
 

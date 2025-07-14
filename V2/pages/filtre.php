@@ -171,6 +171,9 @@ mysqli_close($conn);
             <div class="collapse navbar-collapse" id="navbarNav">
                 <ul class="navbar-nav ms-auto">
                     <li class="nav-item">
+                        <a class="nav-link" href="accueil.php">Accueil</a>
+                    </li>
+                    <li class="nav-item">
                         <a class="nav-link" href="login.php">Se connecter</a>
                     </li>
                     <li class="nav-item">
