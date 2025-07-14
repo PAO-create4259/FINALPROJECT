@@ -81,6 +81,21 @@
     case à cocher disponible
     dans la fiche membre, mettre les infos du membre, ainsi que les objets du membre regroupés par catégorie
 
+    ALEAA
+
+        D ans accueil.php 
+   {ok}- Ajouter un bouton "Emprunter"
+    {ok}-Quand on clique sur le bouton rediriger vers une page emprunt.php
+       {ok} emprunt.php
+        {ok}-methode get pour avoir id de l objet
+    {ok}- il y a un champ qui apparait pour determiner le nombre de jours de l emprunt
+    -rediriger vers la date_d emprunt
+    -traitement_emprunt.php
+     inserer dans 
+     final_project_emprunt (id_objet, id_membre, date_emprunt,date_retour)
+-dans accuei.php  afficher si disponible
+MBOLA TSY METY ILAY SOMME POUR FAIRE LA DATE RETOUR 
+
 
 
 

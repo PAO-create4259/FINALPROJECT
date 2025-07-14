@@ -20,21 +20,55 @@ function add_new_member($email, $mdp, $nom, $ddns,$ville) {
     $sql = sprintf($sql, $email, $mdp, $nom, $ddns,$ville);
     mysqli_query(dbconnect(), $sql);
 }
-function object_list(){
-    $sql = "SELECT o.id_objet, o.nom_objet, c.nom_categorie, m.nom AS proprietaire, i.nom_image, e.date_retour
-        FROM final_project_objet o
-        JOIN final_project_categorie_objet c ON o.id_categorie = c.id_categorie
-        JOIN final_project_membre m ON o.id_membre = m.id_membre
-        LEFT JOIN final_project_images_objet i ON o.id_objet = i.id_objet
-        LEFT JOIN final_project_emprunt e ON o.id_objet = e.id_objet AND e.date_retour IS NULL";
-$res = mysqli_query(dbconnect(), $sql);
-$objects = [];
-if ($res && mysqli_num_rows($res) > 0) {
-    while ($row = mysqli_fetch_assoc($res)) {
+function object_list($search_name = '', $available_only = 0, $categorie_filter = '') {
+    $conn = dbconnect();
+    $sql = "
+        SELECT 
+            o.id_objet,
+            o.nom_objet,
+            o.nom_categorie,
+            o.proprietaire,
+            o.nom_image,
+            e.date_retour
+        FROM final_project_image_objet o
+        LEFT JOIN final_project_emprunt e ON o.id_objet = e.id_objet
+        WHERE o.image_rank = 1
+    ";
+    
+    $params = [];
+    $types = '';
+    
+    if ($search_name) {
+        $sql .= " AND o.nom_objet LIKE ?";
+        $params[] = "%$search_name%";
+        $types .= 's';
+    }
+    
+    if ($available_only) {
+        $sql .= " AND (e.date_retour IS NOT NULL OR e.id_emprunt IS NULL)";
+    }
+    
+    if ($categorie_filter) {
+        $sql .= " AND o.nom_categorie = ?";
+        $params[] = $categorie_filter;
+        $types .= 's';
+    }
+    
+    $stmt = mysqli_prepare($conn, $sql);
+    if (!empty($params)) {
+        mysqli_stmt_bind_param($stmt, $types, ...$params);
+    }
+    
+    mysqli_stmt_execute($stmt);
+    $result = mysqli_stmt_get_result($stmt);
+    $objects = [];
+    while ($row = mysqli_fetch_assoc($result)) {
         $objects[] = $row;
     }
-}
-return $objects;
+    
+    mysqli_stmt_close($stmt);
+    mysqli_close($conn);
+    return $objects;
 }
 function option_categorie(){
     $sql_categories = "SELECT id_categorie, nom_categorie FROM final_project_categorie_objet";

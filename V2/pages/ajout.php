@@ -8,7 +8,7 @@ if (!isset($_SESSION['email'])) {
     exit;
 }
 
-// Get logged-in user's ID
+
 $sql_user = "SELECT id_membre FROM final_project_membre WHERE email = ?";
 $stmt = mysqli_prepare($conn, $sql_user);
 mysqli_stmt_bind_param($stmt, 's', $_SESSION['email']);
@@ -18,7 +18,7 @@ $user = mysqli_fetch_assoc($result);
 $id_membre = $user['id_membre'];
 mysqli_stmt_close($stmt);
 
-// Get categories
+
 $categories = option_categorie();
 mysqli_close($conn);
 ?>
