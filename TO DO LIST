@@ -1,0 +1,27 @@
+(4221)VERSION 1:
+    Pages: table.sql:
+    1-Creation de la base de donnee:
+        final_project_membre(id_membre, nom , date de naissance, genre, émail, ville, mdp, image_profil)
+        final_project_categorie_objet (id_categorie, nom_categorie )
+        final_project_objet (id_objet , nom_objet , id_categorie, id_membre)
+        final_project_images_objet(id_image, id_objet, nom_image)
+        final_project_emprunt(id_emprunt, id_objet, id_membre, date_emprunt, date_retour)
+    2-Insertion des donnee test:
+        4  membres
+        4 catégories ( esthétique, bricolage, mécanique , cuisine )
+        10 objets par membre à répartir sur les catégories
+        10 emprunts
+    3-Creation des pages:
+        login.php:
+            -pour pouvoir se connecter, la personne a besoin de son mail(champ pour l email et pour le mod de passe)
+            -method post vers traitement_login.php: verification si la personne est presente dans le tableau membre
+            -si oui, on appuie sur un bouton se connecter et rediriger vers accueil.php
+            -si non, une erreur apparait, a cote un bouton s'inscrire et se dirige vers inscription.php 
+        inscription.php:
+            -champ a completer: nom, prenom, mail, mot de passe
+            -Bouton s'inscrire qui va vers traitement_inscription qui fais une insert dans le tableau final_project_membre
+            -message inscription reussie, retour vers login.php et peut enfin se connecter
+    
+    
+
+
