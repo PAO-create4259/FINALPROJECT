@@ -3,15 +3,20 @@ session_start();
 include("../inc/fonction.php");
 $conn = dbconnect();
 
-if (!isset($_GET['id_objet'])) {
+if (!isset($_GET['id_objet']) || !is_numeric($_GET['id_objet'])) {
     header('Location: accueil.php');
     exit;
 }
 
 $id_objet = (int)$_GET['id_objet'];
 
-
-$sql = "SELECT * FROM final_project_image_objet WHERE id_objet = ? AND image_rank = 1";
+// Fetch object details
+$sql = "SELECT o.id_objet, o.nom_objet, c.nom_categorie, m.id_membre, m.nom AS proprietaire, i.nom_image
+        FROM final_project_objet o
+        JOIN final_project_categorie_objet c ON o.id_categorie = c.id_categorie
+        JOIN final_project_membre m ON o.id_membre = m.id_membre
+        LEFT JOIN final_project_images_objet i ON o.id_objet = i.id_objet AND i.image_rank = 1
+        WHERE o.id_objet = ?";
 $stmt = mysqli_prepare($conn, $sql);
 mysqli_stmt_bind_param($stmt, 'i', $id_objet);
 mysqli_stmt_execute($stmt);
@@ -24,7 +29,7 @@ if (!$object) {
     exit;
 }
 
-
+// Fetch additional images
 $sql_images = "SELECT id_image, nom_image FROM final_project_images_objet WHERE id_objet = ?";
 $stmt_images = mysqli_prepare($conn, $sql_images);
 mysqli_stmt_bind_param($stmt_images, 'i', $id_objet);
@@ -36,8 +41,8 @@ while ($row = mysqli_fetch_assoc($result_images)) {
 }
 mysqli_stmt_close($stmt_images);
 
-
-$sql_history = "SELECT e.date_emprunt, e.date_retour, m.nom AS emprunteur
+// Fetch loan history
+$sql_history = "SELECT e.id_emprunt, e.date_emprunt, e.date_retour, m.id_membre, m.nom AS emprunteur
                 FROM final_project_emprunt e
                 JOIN final_project_membre m ON e.id_membre = m.id_membre
                 WHERE e.id_objet = ?
@@ -52,7 +57,7 @@ while ($row = mysqli_fetch_assoc($result_history)) {
 }
 mysqli_stmt_close($stmt_history);
 
-
+// Check if logged-in user is the owner
 $is_owner = false;
 if (isset($_SESSION['email'])) {
     $sql_user = "SELECT id_membre FROM final_project_membre WHERE email = ?";
@@ -61,7 +66,7 @@ if (isset($_SESSION['email'])) {
     mysqli_stmt_execute($stmt_user);
     $result_user = mysqli_stmt_get_result($stmt_user);
     $user = mysqli_fetch_assoc($result_user);
-    $is_owner = $user['id_membre'] == $object['id_membre'];
+    $is_owner = $user && $user['id_membre'] == $object['id_membre'];
     mysqli_stmt_close($stmt_user);
 }
 
@@ -73,7 +78,7 @@ mysqli_close($conn);
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Détails de l'Objet - Plateforme d'Emprunt</title>
+    <title>Details de l'Objet - Plateforme d'Emprunt</title>
     <link href="../../bootstrap/css/bootstrap.min.css" rel="stylesheet">
     <style>
         body {
@@ -158,12 +163,12 @@ mysqli_close($conn);
             vertical-align: middle;
             padding: 15px;
         }
-        .object-link {
+        .object-link, .emprunteur-link {
             color: #007bff;
             text-decoration: none;
             font-weight: 500;
         }
-        .object-link:hover {
+        .object-link:hover, .emprunteur-link:hover {
             color: #0056b3;
             text-decoration: underline;
         }
@@ -205,27 +210,39 @@ mysqli_close($conn);
 <body>
     <nav class="navbar navbar-expand-lg">
         <div class="container-fluid">
-            <a class="navbar-brand" href="accueil.php">Plateforme d'Emprunt</a>
+            <a class="navbar-brand" href="objet_detail.php">Plateforme d'Emprunt</a>
             <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
                 <span class="navbar-toggler-icon"></span>
             </button>
             <div class="collapse navbar-collapse" id="navbarNav">
                 <ul class="navbar-nav ms-auto">
-                     <li class="nav-item">
+                    <li class="nav-item">
                         <a class="nav-link" href="accueil.php">Accueil</a>
                     </li>
                     <li class="nav-item">
-                        <a class="nav-link" href="login.php">Se connecter</a>
-                    </li>
-                    <li class="nav-item">
-                        <a class="nav-link" href="inscription.php">S'inscrire</a>
+                        <a class="nav-link" href="total_objet.php">Statistiques des objets</a>
                     </li>
                     <?php if (isset($_SESSION['email'])): ?>
                         <li class="nav-item">
-                            <a class="nav-link" href="membre.php">Mon Profil</a>
+                            <?php
+                            $conn = dbconnect();
+                            $email = mysqli_real_escape_string($conn, $_SESSION['email']);
+                            $sql = "SELECT id_membre FROM final_project_membre WHERE email = '$email'";
+                            $result = mysqli_query($conn, $sql);
+                            $membre = mysqli_fetch_assoc($result);
+                            mysqli_close($conn);
+                            ?>
+                            <a class="nav-link" href="fiche_membre.php?id_membre=<?php echo htmlspecialchars($membre['id_membre']); ?>">Ma Fiche</a>
                         </li>
                         <li class="nav-item">
-                            <a class="nav-link" href="../traitement/traitement_logout.php">Se déconnecter</a>
+                            <a class="nav-link" href="login.php">Se deconnecter</a>
+                        </li>
+                    <?php else: ?>
+                        <li class="nav-item">
+                            <a class="nav-link" href="login.php">Se connecter</a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" href="inscription.php">S'inscrire</a>
                         </li>
                     <?php endif; ?>
                 </ul>
@@ -238,14 +255,13 @@ mysqli_close($conn);
         <div class="row">
             <div class="col-md-6 mb-4">
                 <h3>Image Principale</h3>
-                <img src="../<?php echo $object['nom_image'] ? htmlspecialchars($object['nom_image']) : 'Uploads/default.jpg'; ?>" alt="<?php echo htmlspecialchars($object['nom_objet']); ?>" class="img-primary">
+                <img src="images/<?php echo $object['nom_image'] ? htmlspecialchars($object['nom_image']) : 'default.jpg'; ?>" alt="<?php echo htmlspecialchars($object['nom_objet']); ?>" class="img-primary">
             </div>
             <div class="col-md-6 mb-4">
                 <h3>Informations</h3>
                 <p><strong>Nom :</strong> <?php echo htmlspecialchars($object['nom_objet']); ?></p>
-                <p><strong>Catégorie :</strong> <?php echo htmlspecialchars($object['nom_categorie']); ?></p>
-                <p><strong>Propriétaire :</strong> <a href="membre.php?id_membre=<?php echo $object['id_membre']; ?>" class="object-link"><?php echo htmlspecialchars($object['proprietaire']); ?></a></p>
-              
+                <p><strong>Categorie :</strong> <?php echo htmlspecialchars($object['nom_categorie']); ?></p>
+                <p><strong>Proprietaire :</strong> <a href="fiche_membre.php?id_membre=<?php echo htmlspecialchars($object['id_membre']); ?>" class="object-link"><?php echo htmlspecialchars($object['proprietaire']); ?></a></p>
             </div>
         </div>
         <div class="mb-4">
@@ -256,7 +272,7 @@ mysqli_close($conn);
                 <div class="d-flex flex-wrap">
                     <?php foreach ($images as $img): ?>
                         <div class="position-relative m-2">
-                            <img src="../<?php echo htmlspecialchars($img['nom_image']); ?>" alt="Image de l'objet" class="img-secondary">
+                            <img src="images/<?php echo htmlspecialchars($img['nom_image']); ?>" alt="Image de l'objet" class="img-secondary">
                             <?php if ($is_owner): ?>
                                 <a href="../traitement/traitement_delete_image.php?id_image=<?php echo $img['id_image']; ?>&id_objet=<?php echo $id_objet; ?>" class="btn btn-danger btn-sm position-absolute top-0 end-0" onclick="return confirm('Voulez-vous vraiment supprimer cette image ?');">Supprimer</a>
                             <?php endif; ?>
@@ -268,7 +284,7 @@ mysqli_close($conn);
         <div>
             <h3>Historique des Emprunts</h3>
             <?php if (empty($history)): ?>
-                <p>Aucun emprunt enregistré.</p>
+                <p>Aucun emprunt enregistre.</p>
             <?php else: ?>
                 <div class="table-responsive">
                     <table class="table table-striped table-bordered">
@@ -283,8 +299,12 @@ mysqli_close($conn);
                             <?php foreach ($history as $entry): ?>
                                 <tr>
                                     <td><?php echo htmlspecialchars($entry['date_emprunt']); ?></td>
-                                    <td><?php echo $entry['date_retour'] ? htmlspecialchars($entry['date_retour']) : 'Non retourné'; ?></td>
-                                    <td><?php echo htmlspecialchars($entry['emprunteur']); ?></td>
+                                    <td><?php echo $entry['date_retour'] ? htmlspecialchars($entry['date_retour']) : 'Non retourne'; ?></td>
+                                    <td>
+                                        <a href="fiche_membre.php?id_membre=<?php echo htmlspecialchars($entry['id_membre']); ?>" class="emprunteur-link">
+                                            <?php echo htmlspecialchars($entry['emprunteur']); ?>
+                                        </a>
+                                    </td>
                                 </tr>
                             <?php endforeach; ?>
                         </tbody>

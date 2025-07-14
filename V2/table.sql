@@ -102,3 +102,6 @@ FROM final_project_objet o
 JOIN final_project_categorie_objet c ON o.id_categorie = c.id_categorie
 JOIN final_project_membre m ON o.id_membre = m.id_membre
 LEFT JOIN final_project_images_objet i ON o.id_objet = i.id_objet;
+
+
+ALTER TABLE final_project_emprunt ADD condition_retour ENUM('ok', 'abime', '') DEFAULT '' AFTER date_retour;

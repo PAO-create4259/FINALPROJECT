@@ -83,19 +83,24 @@
 
     ALEAA
 
-        D ans accueil.php 
-   {ok}- Ajouter un bouton "Emprunter"
-    {ok}-Quand on clique sur le bouton rediriger vers une page emprunt.php
-       {ok} emprunt.php
-        {ok}-methode get pour avoir id de l objet
-    {ok}- il y a un champ qui apparait pour determiner le nombre de jours de l emprunt
-    -rediriger vers la date_d emprunt
-    -traitement_emprunt.php
-     inserer dans 
-     final_project_emprunt (id_objet, id_membre, date_emprunt,date_retour)
--dans accuei.php  afficher si disponible
-MBOLA TSY METY ILAY SOMME POUR FAIRE LA DATE RETOUR 
+    (4259) Dans accueil.php 
+            {ok}- Ajouter un bouton "Emprunter"
+                {ok}-Quand on clique sur le bouton rediriger vers une page emprunt.php
+                {ok} emprunt.php
+                    {ok}-methode get pour avoir id de l objet
+                {ok}- il y a un champ qui apparait pour determiner le nombre de jours de l emprunt
+                -rediriger vers traitement_emprunt 
+                -traitement_emprunt.php
+                inserer dans 
+                final_project_emprunt (id_objet, id_membre, date_emprunt,date_retour)
+                -dans accuei.php  afficher si disponible
+            (en cours) SOMME POUR FAIRE LA DATE RETOUR 
 
+    (4221)-dans un fiche_membre, on affiche la liste de ses emprunts,les emprunts du membre 
+            -creation de la page fiche_membre.php:
+                -apres avoir choisi un membre dans l'objet_details.php,la liste de ses emprunts s'affichera.
+                -Ajout d'un bouton retour qui dirige vers un zone de liste qui que l'objet est-il "ok" ou "abime"
+                -nouvelle page qui montre le nombre total de tous les objets "ok" et tous les objets "abimes"
 
 
 
