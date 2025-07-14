@@ -27,14 +27,16 @@
     {ok}-fonction verify_password si un autre utilisateur a deja le meme mot de passe
     {ok}-fonction add_new_member pour ajouter le nouveau membre dans la database
     -[4259-4221]accueil.php
-     -liste de tous les objets par defaut  avec date de retour et emprunt en cours
-     -tableau utiliser le tableau final_project_objet
-    -filtre par categorie un bouton filtrer et une liste deroulante avec les categories
+    
+ {ok}-liste de tous les objets par defaut  avec date de retour et emprunt en cours
+     {ok}-tableau utiliser le tableau final_project_objet
+    {ok}-filtre par categorie un bouton filtrer et une liste deroulante avec les categories
      final_project_images_objet
      -4221 traitement_filtrer.php:
      -le bouton filtrer(liste deroulante) redirige vers ve traitement et se redirige ensuite vers filtre.php et la liste se regenere
      -4221 filtre.php: 
         Comme un accueil.php mais liste les objects par categorie
+        
 
 -DEPLOIEMENT
 -chnger l adresse de la connexion.php mysqli.connecter

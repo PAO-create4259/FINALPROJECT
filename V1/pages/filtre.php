@@ -1,12 +1,39 @@
 <?php
+error_reporting(E_ALL);
+ini_set('display_errors', 1);
+
+session_start();
 include("../inc/fonction.php");
+$conn = dbconnect();
+
+$sql_categories = "SELECT id_categorie, nom_categorie FROM final_project_categorie_objet";
+$res_categories = mysqli_query($conn, $sql_categories);
+$categories = [];
+if ($res_categories && mysqli_num_rows($res_categories) > 0) {
+    while ($row = mysqli_fetch_assoc($res_categories)) {
+        $categories[] = $row;
+    }
+}
+$sql = "SELECT o.id_objet, o.nom_objet, c.nom_categorie, m.nom AS proprietaire, i.nom_image, e.date_retour
+        FROM final_project_objet o
+        JOIN final_project_categorie_objet c ON o.id_categorie = c.id_categorie
+        JOIN final_project_membre m ON o.id_membre = m.id_membre
+        LEFT JOIN final_project_images_objet i ON o.id_objet = i.id_objet
+        LEFT JOIN final_project_emprunt e ON o.id_objet = e.id_objet AND e.date_retour IS NULL";
+
 $categorie_filter = isset($_SESSION['categorie']) && !empty($_SESSION['categorie']) ? mysqli_real_escape_string($conn, $_SESSION['categorie']) : '';
 if ($categorie_filter) {
     $sql .= " WHERE c.nom_categorie = '$categorie_filter'";
 }
-$categories =option_categorie();
-$objects = object_list();
 
+$res = mysqli_query($conn, $sql);
+$objects = [];
+if ($res && mysqli_num_rows($res) > 0) {
+    while ($row = mysqli_fetch_assoc($res)) {
+        $objects[] = $row;
+    }
+}
+mysqli_close($conn);
 ?>
 
 <!DOCTYPE html>
@@ -15,26 +42,12 @@ $objects = object_list();
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Accueil - Plateforme d'Emprunt d'Objets</title>
+   
 </head>
 <body>
     <div class="container">
-        <h2>Liste des Objets</h2>
-         <form method="GET" action="../traitement/traitement_filtrer.php">
-            <div class="form-group">
-                <label for="categorie">Filtrer par catégorie</label>
-                <select id="categorie" name="categorie">
-                    <option value="">Toutes</option>
-                    <?php foreach ($categories as $cat): ?>
-                        <option value="<?php echo htmlspecialchars($cat['nom_categorie']); ?>" 
-                                <?php echo $categorie_filter == $cat['nom_categorie'] ? 'selected' : ''; ?>>
-                            <?php echo htmlspecialchars($cat['nom_categorie']); ?>
-                        </option>
-                    <?php endforeach; ?>
-                </select>
-                <button type="submit" class="btn">Filtrer</button>
-            </div>
-        </form>
-        <table>
+        <h2>Liste des Objets dans la categorie <?=$categorie_filter;?></h2>
+       <table>
             <thead>
                 <tr>
                     <th>Image</th>
@@ -44,7 +57,6 @@ $objects = object_list();
                     <th>Statut</th>
                 </tr>
             </thead>
-
             <tbody>
                 <?php if (empty($objects)): ?>
                     <tr><td colspan="5">Aucun objet trouvé.</td></tr>
@@ -72,4 +84,3 @@ $objects = object_list();
     </div>
 </body>
 </html>
-
