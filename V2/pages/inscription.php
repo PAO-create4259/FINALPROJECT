@@ -126,7 +126,7 @@ require("../inc/fonction.php");
                     </li>
                     <?php if (isset($_SESSION['email'])): ?>
                         <li class="nav-item">
-                            <a class="nav-link" href="../traitement/traitement_logout.php">Se déconnecter</a>
+                            <a class="nav-link" href="login.php">Se déconnecter</a>
                         </li>
                     <?php endif; ?>
                 </ul>

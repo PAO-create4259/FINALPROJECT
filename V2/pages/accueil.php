@@ -1,39 +1,13 @@
 <?php
-error_reporting(E_ALL);
-ini_set('display_errors', 1);
-
-session_start();
 include("../inc/fonction.php");
-$conn = dbconnect();
+session_start();
 
-$sql_categories = "SELECT id_categorie, nom_categorie FROM final_project_categorie_objet";
-$res_categories = mysqli_query($conn, $sql_categories);
-$categories = [];
-if ($res_categories && mysqli_num_rows($res_categories) > 0) {
-    while ($row = mysqli_fetch_assoc($res_categories)) {
-        $categories[] = $row;
-    }
-}
-$sql = "SELECT o.id_objet, o.nom_objet, c.nom_categorie, m.nom AS proprietaire, i.nom_image, e.date_retour
-        FROM final_project_objet o
-        JOIN final_project_categorie_objet c ON o.id_categorie = c.id_categorie
-        JOIN final_project_membre m ON o.id_membre = m.id_membre
-        LEFT JOIN final_project_images_objet i ON o.id_objet = i.id_objet
-        LEFT JOIN final_project_emprunt e ON o.id_objet = e.id_objet AND e.date_retour IS NULL";
+$categories = option_categorie();
+$search_name = isset($_GET['search_name']) ? trim($_GET['search_name']) : '';
+$available_only = isset($_GET['available_only']) ? 1 : 0;
+$categorie_filter = isset($_SESSION['categorie']) && !empty($_SESSION['categorie']) ? $_SESSION['categorie'] : '';
 
-$categorie_filter = isset($_SESSION['categorie']) && !empty($_SESSION['categorie']) ? mysqli_real_escape_string($conn, $_SESSION['categorie']) : '';
-if ($categorie_filter) {
-    $sql .= " WHERE c.nom_categorie = '$categorie_filter'";
-}
-
-$res = mysqli_query($conn, $sql);
-$objects = [];
-if ($res && mysqli_num_rows($res) > 0) {
-    while ($row = mysqli_fetch_assoc($res)) {
-        $objects[] = $row;
-    }
-}
-mysqli_close($conn);
+$objects = object_list($search_name, $available_only, $categorie_filter);
 ?>
 
 <!DOCTYPE html>
@@ -41,7 +15,7 @@ mysqli_close($conn);
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Filtre - Plateforme d'Emprunt d'Objets</title>
+    <title>Accueil - Plateforme d'Emprunt d'Objets</title>
     <link href="../../bootstrap/css/bootstrap.min.css" rel="stylesheet">
     <style>
         body {
@@ -81,12 +55,12 @@ mysqli_close($conn);
             margin-bottom: 25px;
             text-align: center;
         }
-        .form-select, .btn-primary {
+        .form-control, .form-select, .btn-primary {
             border-radius: 10px;
             padding: 12px;
             font-size: 1rem;
         }
-        .form-select:focus {
+        .form-control:focus, .form-select:focus {
             box-shadow: 0 0 10px rgba(0, 123, 255, 0.4);
             border-color: #007bff;
         }
@@ -140,6 +114,15 @@ mysqli_close($conn);
             color: #28a745;
             font-weight: 600;
         }
+        .object-link {
+            color: #007bff;
+            text-decoration: none;
+            font-weight: 500;
+        }
+        .object-link:hover {
+            color: #0056b3;
+            text-decoration: underline;
+        }
         @media (max-width: 576px) {
             .container {
                 padding: 15px;
@@ -151,7 +134,7 @@ mysqli_close($conn);
             h2 {
                 font-size: 1.4rem;
             }
-            .form-select, .btn-primary {
+            .form-control, .form-select, .btn-primary {
                 font-size: 0.9rem;
                 padding: 10px;
             }
@@ -178,7 +161,10 @@ mysqli_close($conn);
                     </li>
                     <?php if (isset($_SESSION['email'])): ?>
                         <li class="nav-item">
-                            <a class="nav-link" href="../traitement/traitement_logout.php">Se déconnecter</a>
+                            <a class="nav-link" href="membre.php">Mon Profil</a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" href="login.php">Se déconnecter</a>
                         </li>
                     <?php endif; ?>
                 </ul>
@@ -188,12 +174,36 @@ mysqli_close($conn);
 
     <div class="container">
         <h2>Liste des Objets <?php echo $categorie_filter ? 'dans la catégorie ' . htmlspecialchars($categorie_filter) : ''; ?></h2>
+        <?php if (isset($_SESSION['email'])): ?>
+            <div class="mb-4 text-center">
+                <a href="ajout.php" class="btn btn-primary">Ajouter un objet</a>
+            </div>
+        <?php endif; ?>
         <form method="GET" action="../traitement/traitement_filtrer.php" class="mb-5">
+        <div class="row g-3 align-items-center justify-content-center">
+            <div class="col-auto">
+                <label for="categorie" class="form-label fw-bold">Filtrer par catégorie</label>
+            </div>
+            <div class="col-auto">
+                <select id="categorie" name="categorie" class="form-select" aria-label="Catégorie">
+                    <option value="">Toutes</option>
+                    <?php foreach ($categories as $cat): ?>
+                        <option value="<?php echo htmlspecialchars($cat['nom_categorie']); ?>" 
+                                <?php echo $categorie_filter == $cat['nom_categorie'] ? 'selected' : ''; ?>>
+                            <?php echo htmlspecialchars($cat['nom_categorie']); ?>
+                        </option>
+                    <?php endforeach; ?>
+                </select>
+            </div>
+            <div class="col-auto">
+                <button type="submit" class="btn btn-primary">Filtrer</button>
+            </div>
+        </div>
+    </form>
+        <form method="GET" action="accueil.php" class="mb-5">
             <div class="row g-3 align-items-center justify-content-center">
                 <div class="col-auto">
-                    <label for="categorie" class="form-label fw-bold">Filtrer par catégorie</label>
-                </div>
-                <div class="col-auto">
+                    <label for="categorie" class="form-label fw-bold">Catégorie</label>
                     <select id="categorie" name="categorie" class="form-select" aria-label="Catégorie">
                         <option value="">Toutes</option>
                         <?php foreach ($categories as $cat): ?>
@@ -205,7 +215,17 @@ mysqli_close($conn);
                     </select>
                 </div>
                 <div class="col-auto">
-                    <button type="submit" class="btn btn-primary">Filtrer</button>
+                    <label for="search_name" class="form-label fw-bold">Nom de l'objet</label>
+                    <input type="text" id="search_name" name="search_name" class="form-control" value="<?php echo htmlspecialchars($search_name); ?>" placeholder="Rechercher...">
+                </div>
+                <div class="col-auto">
+                    <div class="form-check">
+                        <input type="checkbox" id="available_only" name="available_only" class="form-check-input" <?php echo $available_only ? 'checked' : ''; ?>>
+                        <label for="available_only" class="form-check-label fw-bold">Disponible uniquement</label>
+                    </div>
+                </div>
+                <div class="col-auto">
+                    <button type="submit" class="btn btn-primary">Rechercher</button>
                 </div>
             </div>
         </form>
@@ -228,14 +248,14 @@ mysqli_close($conn);
                             <tr>
                                 <td>
                                     <?php if ($obj['nom_image']): ?>
-                                        <img src="images/<?php echo htmlspecialchars($obj['nom_image']); ?>" alt="<?php echo htmlspecialchars($obj['nom_objet']); ?>">
+                                        <img src="Uploads/<?php echo htmlspecialchars($obj['nom_image']); ?>" alt="<?php echo htmlspecialchars($obj['nom_objet']); ?>">
                                     <?php else: ?>
-                                        <span class="no-image">Pas d'image</span>
+                                        <img src="images-projetfinal/vernis1.jpg" alt="Image par défaut" class="no-image">
                                     <?php endif; ?>
                                 </td>
-                                <td><?php echo htmlspecialchars($obj['nom_objet']); ?></td>
+                                <td><a href="objet_details.php?id_objet=<?php echo $obj['id_objet']; ?>" class="object-link"><?php echo htmlspecialchars($obj['nom_objet']); ?></a></td>
                                 <td><?php echo htmlspecialchars($obj['nom_categorie']); ?></td>
-                                <td><?php echo htmlspecialchars($obj['proprietaire']); ?></td>
+                                <td><a href="membre.php?id_membre=<?php echo $obj['id_membre']; ?>" class="object-link"><?php echo htmlspecialchars($obj['proprietaire']); ?></a></td>
                                 <td class="<?php echo $obj['date_retour'] === null && $obj['id_objet'] ? 'status-en-cours' : 'status-disponible'; ?>">
                                     <?php echo $obj['date_retour'] ? htmlspecialchars($obj['date_retour']) : ($obj['date_retour'] === null && $obj['id_objet'] ? 'En cours' : 'Disponible'); ?>
                                 </td>

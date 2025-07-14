@@ -2,7 +2,6 @@
 include("../inc/fonction.php");
 session_start();
 
-
 $categories = option_categorie();
 $objects = object_list();
 $categorie_filter = isset($_SESSION['categorie']) && !empty($_SESSION['categorie']) ? $_SESSION['categorie'] : '';
@@ -16,30 +15,125 @@ $categorie_filter = isset($_SESSION['categorie']) && !empty($_SESSION['categorie
     <title>Accueil - Plateforme d'Emprunt d'Objets</title>
     <link href="../../bootstrap/css/bootstrap.min.css" rel="stylesheet">
     <style>
-        body { background: linear-gradient(to bottom, #f8f9fa, #e9ecef); min-height: 100vh; }
-        .container { max-width: 1200px; margin-top: 30px; background: #fff; border-radius: 10px; box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1); padding: 20px; }
-        .navbar { box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1); }
-        .navbar-brand { font-weight: bold; }
-        h2 { color: #343a40; font-weight: 600; }
-        .form-select, .btn-primary { border-radius: 5px; }
-        .form-select:focus { box-shadow: 0 0 5px rgba(0, 123, 255, 0.5); }
-        .btn-primary { transition: background-color 0.3s; }
-        .btn-primary:hover { background-color: #0056b3; }
-        .table th { background-color: #007bff; color: #fff; }
-        .table td, .table th { vertical-align: middle; }
-        .table img { max-width: 80px; height: auto; border-radius: 5px; }
-        .no-image { color: #6c757d; font-style: italic; }
-        .status-en-cours { color: #e67e22; font-weight: bold; }
-        .status-disponible { color: #28a745; font-weight: bold; }
+        body {
+            background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
+            min-height: 100vh;
+            font-family: 'Roboto', sans-serif;
+        }
+        .container {
+            max-width: 1200px;
+            margin: 40px auto;
+            background: #ffffff;
+            border-radius: 15px;
+            box-shadow: 0 6px 20px rgba(0, 0, 0, 0.15);
+            padding: 30px;
+        }
+        .navbar {
+            background: linear-gradient(to right, #007bff, #0056b3);
+            padding: 15px 0;
+            border-bottom: 2px solid #004085;
+        }
+        .navbar-brand {
+            font-size: 1.5rem;
+            font-weight: 700;
+            color: #ffffff !important;
+        }
+        .nav-link {
+            color: #ffffff !important;
+            font-weight: 500;
+            transition: color 0.3s ease;
+        }
+        .nav-link:hover {
+            color: #e9ecef !important;
+        }
+        h2 {
+            color: #1a3c6d;
+            font-weight: 700;
+            margin-bottom: 25px;
+            text-align: center;
+        }
+        .form-select, .btn-primary {
+            border-radius: 10px;
+            padding: 12px;
+            font-size: 1rem;
+        }
+        .form-select:focus {
+            box-shadow: 0 0 10px rgba(0, 123, 255, 0.4);
+            border-color: #007bff;
+        }
+        .btn-primary {
+            background: #20c997;
+            border: none;
+            font-weight: 600;
+            transition: background-color 0.3s ease, transform 0.2s ease;
+        }
+        .btn-primary:hover {
+            background: #17a589;
+            transform: translateY(-2px);
+        }
+        .table {
+            border-radius: 10px;
+            overflow: hidden;
+            background: #ffffff;
+        }
+        .table th {
+            background: #007bff;
+            color: #ffffff;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+        }
+        .table td, .table th {
+            vertical-align: middle;
+            padding: 15px;
+            border-color: #dee2e6;
+        }
+        .table img {
+            max-width: 80px;
+            height: auto;
+            border-radius: 8px;
+            border: 1px solid #e9ecef;
+            transition: transform 0.2s ease;
+        }
+        .table img:hover {
+            transform: scale(1.1);
+        }
+        .no-image {
+            color: #6c757d;
+            font-style: italic;
+            font-size: 0.9rem;
+        }
+        .status-en-cours {
+            color: #e67e22;
+            font-weight: 600;
+        }
+        .status-disponible {
+            color: #28a745;
+            font-weight: 600;
+        }
         @media (max-width: 576px) {
-            .table img { max-width: 60px; }
-            h2 { font-size: 1.5rem; }
+            .container {
+                padding: 15px;
+                margin: 20px auto;
+            }
+            .table img {
+                max-width: 60px;
+            }
+            h2 {
+                font-size: 1.4rem;
+            }
+            .form-select, .btn-primary {
+                font-size: 0.9rem;
+                padding: 10px;
+            }
+            .navbar-brand {
+                font-size: 1.2rem;
+            }
         }
     </style>
 </head>
 <body>
-    <!-- Navigation Bar -->
-    <nav class="navbar navbar-expand-lg navbar-light bg-light mb-4">
+    <nav class="navbar navbar-expand-lg">
         <div class="container-fluid">
             <a class="navbar-brand" href="accueil.php">Plateforme d'Emprunt</a>
             <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
@@ -64,8 +158,8 @@ $categorie_filter = isset($_SESSION['categorie']) && !empty($_SESSION['categorie
     </nav>
 
     <div class="container">
-        <h2 class="text-center mb-4">Liste des Objets</h2>
-        <form method="GET" action="../traitement/traitement_filtrer.php" class="mb-4">
+        <h2>Liste des Objets <?php echo $categorie_filter ? 'dans la catégorie ' . htmlspecialchars($categorie_filter) : ''; ?></h2>
+        <form method="GET" action="../traitement/traitement_filtrer.php" class="mb-5">
             <div class="row g-3 align-items-center justify-content-center">
                 <div class="col-auto">
                     <label for="categorie" class="form-label fw-bold">Filtrer par catégorie</label>

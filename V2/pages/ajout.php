@@ -1,12 +1,34 @@
 <?php
-require("../inc/fonction.php");
+session_start();
+include("../inc/fonction.php");
+$conn = dbconnect();
+
+if (!isset($_SESSION['email'])) {
+    header('Location: login.php');
+    exit;
+}
+
+// Get logged-in user's ID
+$sql_user = "SELECT id_membre FROM final_project_membre WHERE email = ?";
+$stmt = mysqli_prepare($conn, $sql_user);
+mysqli_stmt_bind_param($stmt, 's', $_SESSION['email']);
+mysqli_stmt_execute($stmt);
+$result = mysqli_stmt_get_result($stmt);
+$user = mysqli_fetch_assoc($result);
+$id_membre = $user['id_membre'];
+mysqli_stmt_close($stmt);
+
+// Get categories
+$categories = option_categorie();
+mysqli_close($conn);
 ?>
+
 <!DOCTYPE html>
 <html lang="fr">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Inscription - Plateforme d'Emprunt</title>
+    <title>Ajouter un Objet - Plateforme d'Emprunt</title>
     <link href="../../bootstrap/css/bootstrap.min.css" rel="stylesheet">
     <style>
         body {
@@ -18,8 +40,8 @@ require("../inc/fonction.php");
             align-items: center;
             justify-content: center;
         }
-        .inscription {
-            max-width: 500px;
+        .ajout {
+            max-width: 600px;
             width: 100%;
             background: #ffffff;
             border-radius: 15px;
@@ -52,13 +74,13 @@ require("../inc/fonction.php");
             text-align: center;
             margin-bottom: 20px;
         }
-        .form-control {
+        .form-control, .form-select {
             border-radius: 10px;
             padding: 12px;
             font-size: 1rem;
             margin-bottom: 15px;
         }
-        .form-control:focus {
+        .form-control:focus, .form-select:focus {
             box-shadow: 0 0 10px rgba(0, 123, 255, 0.4);
             border-color: #007bff;
         }
@@ -75,31 +97,15 @@ require("../inc/fonction.php");
             background: #17a589;
             transform: translateY(-2px);
         }
-        .error {
-            color: #dc3545;
-            font-size: 0.9rem;
-            margin-bottom: 15px;
-            text-align: center;
-        }
-        .inscri {
-            color: #007bff;
-            font-weight: 500;
-            text-decoration: none;
-            transition: color 0.3s ease;
-        }
-        .inscri:hover {
-            color: #0056b3;
-            text-decoration: underline;
-        }
         @media (max-width: 576px) {
-            .inscription {
+            .ajout {
                 padding: 20px;
                 margin: 15px;
             }
             h1 {
                 font-size: 1.5rem;
             }
-            .form-control, .btn-primary {
+            .form-control, .form-select, .btn-primary {
                 font-size: 0.9rem;
                 padding: 10px;
             }
@@ -124,53 +130,41 @@ require("../inc/fonction.php");
                     <li class="nav-item">
                         <a class="nav-link" href="inscription.php">S'inscrire</a>
                     </li>
-                    <?php if (isset($_SESSION['email'])): ?>
-                        <li class="nav-item">
-                            <a class="nav-link" href="../traitement/traitement_logout.php">Se déconnecter</a>
-                        </li>
-                    <?php endif; ?>
+                    <li class="nav-item">
+                        <a class="nav-link" href="membre.php">Mon Profil</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="../traitement/traitement_logout.php">Se déconnecter</a>
+                    </li>
                 </ul>
             </div>
         </div>
     </nav>
 
     <main>
-        <div class="inscription">
-            <h1>Inscription</h1>
-            <form action="../traitement/traitement_inscription.php" method="post">
+        <div class="ajout">
+            <h1>Ajouter un Objet</h1>
+            <form action="../traitement/traitement_upload.php" method="post" enctype="multipart/form-data">
+                <input type="hidden" name="id_membre" value="<?php echo $id_membre; ?>">
                 <div class="mb-3">
-                    <label for="nom" class="form-label fw-bold">Nom</label>
-                    <input type="text" name="nom" id="nom" class="form-control" required>
+                    <label for="nom_objet" class="form-label fw-bold">Nom de l'objet</label>
+                    <input type="text" name="nom_objet" id="nom_objet" class="form-control" required>
                 </div>
                 <div class="mb-3">
-                    <label for="ddns" class="form-label fw-bold">Date de naissance</label>
-                    <input type="date" name="ddns" id="ddns" class="form-control" required>
+                    <label for="id_categorie" class="form-label fw-bold">Catégorie</label>
+                    <select name="id_categorie" id="id_categorie" class="form-select" required>
+                        <option value="">Sélectionner une catégorie</option>
+                        <?php foreach ($categories as $cat): ?>
+                            <option value="<?php echo $cat['id_categorie']; ?>"><?php echo htmlspecialchars($cat['nom_categorie']); ?></option>
+                        <?php endforeach; ?>
+                    </select>
                 </div>
                 <div class="mb-3">
-                    <label for="ville" class="form-label fw-bold">Ville</label>
-                    <input type="text" name="ville" id="ville" class="form-control" required>
+                    <label for="images" class="form-label fw-bold">Images (plusieurs possibles)</label>
+                    <input type="file" name="images[]" id="images" class="form-control" multiple accept="image/*">
                 </div>
-                <?php if (isset($_GET['error'])): ?>
-                    <p class="error">Votre email a déjà été utilisé</p>
-                <?php endif; ?>
-                <div class="mb-3">
-                    <label for="email" class="form-label fw-bold">Email</label>
-                    <input type="text" name="email" id="email" class="form-control" required>
-                </div>
-                <div class="mb-3">
-                    <label for="mdp" class="form-label fw-bold">Mot de passe</label>
-                    <input type="password" name="mdp" id="mdp" class="form-control" required>
-                </div>
-                <?php if (isset($_GET['errormdp'])): ?>
-                    <p class="error">Veuillez confirmer votre mot de passe</p>
-                <?php endif; ?>
-                <div class="mb-3">
-                    <label for="mdpbis" class="form-label fw-bold">Confirmer mot de passe</label>
-                    <input type="password" name="mdpbis" id="mdpbis" class="form-control" required>
-                </div>
-                <button type="submit" class="btn btn-primary">S'inscrire</button>
+                <button type="submit" class="btn btn-primary">Ajouter l'objet</button>
             </form>
-            <p class="text-center mt-3">Vous avez déjà un compte ? <a href="login.php" class="inscri">Se connecter</a></p>
         </div>
     </main>
     <script src="../../bootstrap/js/bootstrap.bundle.min.js"></script>
