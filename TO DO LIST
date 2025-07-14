@@ -17,11 +17,27 @@
             -method post vers traitement_login.php: verification si la personne est presente dans le tableau membre
             -si oui, on appuie sur un bouton se connecter et rediriger vers accueil.php
             -si non, une erreur apparait, a cote un bouton s'inscrire et se dirige vers inscription.php 
-        {en cours}inscription.php:
+        {{ok}}inscription.php:
             -champ a completer: nom, prenom, mail, mot de passe
             -Bouton s'inscrire qui va vers traitement_inscription qui fais une insert dans le tableau final_project_membre
             -message inscription reussie, retour vers login.php et peut enfin se connecter
-    
+    (4259){ok}fonction.php:
+    {ok}-faire une fonction to_log qui permet a la personne de se connecter en utilisant le mot de passe et l email
+    {ok}-fonction verify_inscription pour pouvoir s incrire en completant les champs ci dessus 
+    {ok}-fonction verify_password si un autre utilisateur a deja le meme mot de passe
+    {ok}-fonction add_new_member pour ajouter le nouveau membre dans la database
+    -accueil.php
+     -liste de tous les objets par defaut  avec date de retour et emprunt en cours
+     -tableau utiliser le tableau final_project_objet
+    -filtre par categorie un bouton filtrer et une liste deroulante avec les categories
+     final_project_images_objet
+
+-DEPLOIEMENT
+-chnger l adresse de la connexion.php mysqli.connecter
+-deployer avec fillezilla
+
+
+
     
 
 
